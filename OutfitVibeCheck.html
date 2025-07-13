@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outfit Vibe Check - Architecture & API Specifications</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #eef2f7;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+            line-height: 1.6;
+        }
+        .architecture-document {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        ul li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .diagram-container {
+            margin: 30px 0;
+            background-color: #fcfdff;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #dce4eb;
+            overflow-x: auto;
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05);
+        }
+        .mermaid {
+            width: 100%;
+            height: auto;
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .api-table th, .api-table td {
+            border: 1px solid #e0e6ed;
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.9em;
+            word-break: break-word;
+        }
+        .api-table th {
+            background-color: #f5f8fb;
+            color: #4a5568;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .api-table tr:nth-child(even) {
+            background-color: #f9fcff;
+        }
+        .api-table tr:hover {
+            background-color: #eef4fb;
+        }
+        .api-table td:first-child {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .api-table code {
+            background-color: #e8f0f7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.85em;
+            color: #36454F;
+        }
+        @media (max-width: 768px) {
+            .architecture-document {
+                padding: 20px;
+                margin: 10px;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.3em; }
+            .api-table, .api-table thead, .api-table tbody, .api-table th, .api-table td, .api-table tr {
+                display: block;
+            }
+            .api-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            .api-table tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+            }
+            .api-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+            .api-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 30px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="architecture-document">
+        <h1>Outfit Vibe Check - Architecture & API Specifications</h1>
+        <p>This document provides a comprehensive overview of the system architecture, data models, and API specifications for the "Outfit Vibe Check" feature within the ReStyleX application. It is designed for technical stakeholders, including architects and senior developers.</p>
+
+        <h2>1. System Architecture Diagram</h2>
+        <p>The architecture is built on a scalable, serverless stack using Firebase. It clearly separates concerns between the frontend client, backend microservices (Cloud Functions), data storage, and external integrations. The flow is designed to be event-driven and real-time where necessary.</p>
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart LR
+    %% === STYLING ===
+    classDef frontend fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#0D47A1;
+    classDef backend fill:#E8F5E9,stroke:#4CAF50,stroke-width:2px,color:#1B5E20;
+    classDef data fill:#FFF9C4,stroke:#FFC107,stroke-width:2px,color:#FF6F00;
+    classDef external fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px,color:#6A1B9A;
+
+    %% === FRONTEND ===
+    subgraph Frontend [Client Interface]
+        App[React Native App]:::frontend
+    end
+
+    %% === EXTERNAL SERVICES ===
+    subgraph External [Authentication & AI]
+        FirebaseAuth[Firebase Auth]:::external
+        GeminiAPI[Gemini Vision API]:::external
+        DynamicLinks[Dynamic Link Generator]:::external
+    end
+
+    %% === BACKEND SERVICES ===
+    subgraph Backend [Business Logic]
+        UploadService[Upload Service]:::backend
+        AIService[AI Service]:::backend
+        PollService[Poll Service]:::backend
+        DashboardService[Dashboard Service]:::backend
+    end
+
+    %% === DATA LAYER ===
+    subgraph Data [Storage & Realtime Sync]
+        CloudStorage[Cloud Storage]:::data
+        Firestore[Firestore DB]:::data
+    end
+
+    %% === AUTH FLOW ===
+    App -->|User Login| FirebaseAuth
+
+    %% === OUTFIT ANALYSIS FLOW ===
+    App -->|Upload Image| UploadService
+    UploadService -->|Save File| CloudStorage
+    CloudStorage -->|Trigger Processing| AIService
+    AIService -->|Send to Vision API| GeminiAPI
+    GeminiAPI -->|Return Tags| AIService
+    AIService -->|Store Results| Firestore
+
+    %% === POLL FLOW ===
+    App -->|Create Poll| PollService
+    PollService -->|Generate Link| DynamicLinks
+    PollService -->|Store Poll| Firestore
+
+    App -->|Vote Poll| PollService
+    PollService -->|Record Vote| Firestore
+
+    %% === DASHBOARD FLOW ===
+    App -->|Open Dashboard| DashboardService
+    DashboardService -->|Aggregate Data| Firestore
+
+    %% === REAL-TIME SYNC ===
+    Firestore -->|Realtime Updates| App
+            </div>
+        </div>
+
+        <h2>2. Key Architectural Principles</h2>
+        <ul>
+            <li><strong>Real-time Social Feedback:</strong> Core interactions, like voting and seeing poll results, are updated instantly across all clients using Firestore's real-time listeners.</li>
+            <li><strong>AI-Powered Analysis:</strong> Leverages external AI (Gemini Vision) for sophisticated, asynchronous outfit analysis, providing users with valuable style insights without blocking UI flows.</li>
+            <li><strong>Event-Driven & Serverless:</strong> Built on Firebase Cloud Functions, the architecture is inherently scalable, cost-effective, and reacts to events like image uploads automatically.</li>
+            <li><strong>Seamless Sharing & Virality:</strong> Firebase Dynamic Links create smart URLs that ensure a smooth user experience when sharing polls, driving engagement and app installs.</li>
+            <li><strong>Component-Based Services:</strong> Each primary function (upload, polling, AI) is encapsulated in a distinct microservice, promoting separation of concerns and maintainability.</li>
+        </ul>
+
+        <h2>3. Data Model Overview</h2>
+        <p>The data is structured in Firestore to optimize for the application's primary read patterns. This updated model includes entities for `Trends` and `Notifications` to support dashboard and social features, and adds more detail to existing collections.</p>
+        <div class="diagram-container">
+            <div class="mermaid">
+erDiagram
+    Users {
+        string userId PK "Firebase Auth UID"
+        string username
+        string profilePictureUrl
+        string[] friendIds "List of friend user IDs"
+    }
+    Outfits {
+        string outfitId PK
+        string userId FK
+        string imageUrl
+        string description
+        string[] vibeTags "AI or user-generated tags"
+        string status "e.g., 'active', 'processing'"
+    }
+    Polls {
+        string pollId PK
+        string userId FK
+        string question
+        string visibility "'public' or 'friends_only'"
+        string shareableLink "Generated Dynamic Link"
+        timestamp expiresAt
+    }
+    PollOptions {
+        string optionId PK
+        string pollId FK
+        string outfitId FK
+        int voteCount "Denormalized for performance"
+    }
+    Votes {
+        string voteId PK
+        string pollId FK
+        string optionId FK
+        string userId FK
+        string emojiReaction "e.g., '🔥', '👍'"
+    }
+    AIInsights {
+        string insightId PK
+        string outfitId FK
+        string insightText
+        object structuredFeedback "Detailed AI analysis"
+    }
+    Notifications {
+        string notificationId PK
+        string recipientId FK "User to notify"
+        string senderId FK "User who initiated the action"
+        string type "'new_vote', 'poll_ended'"
+        string entityId "ID of the related poll, etc."
+        boolean isRead
+        timestamp createdAt
+    }
+    Trends {
+        string trendId PK
+        string type "'outfit', 'vibe'"
+        string relatedId "outfitId or vibe tag"
+        int score "Calculated trendiness score"
+        string timeframe "'daily', 'weekly'"
+        timestamp updatedAt
+    }
+
+    Users ||--o{ Outfits : "creates"
+    Users ||--o{ Polls : "creates"
+    Users ||--o{ Votes : "casts"
+    Users ||--o{ Notifications : "receives"
+    Polls ||--|{ PollOptions : "contains"
+    Polls ||--o{ Votes : "receives"
+    Outfits ||--|{ PollOptions : "is_an_option_in"
+    Outfits ||--o{ AIInsights : "has"
+    Trends }o..o{ Outfits : "can_be_about"
+            </div>
+        </div>
+
+        <h2>4. API Specifications</h2>
+        <p>The following table details the RESTful API endpoints exposed by the backend services. All endpoints are secured and require a valid Firebase Auth ID token in the `Authorization` header.</p>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Request Body (Example)</th>
+                    <th>Response Body (Example)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/outfit/upload</code></td>
+                    <td data-label="Description">Uploads an outfit image. Creates an `Outfits` document and triggers the AI analysis workflow.</td>
+                    <td data-label="Request Body"><code>{ "image": (binary) }</code></td>
+                    <td data-label="Response Body"><code>{ "success": true, "outfitId": "outfit_abc123", "imageUrl": "..." }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/poll/create</code></td>
+                    <td data-label="Description">Creates a new poll with two or more outfit options and generates a shareable link.</td>
+                    <td data-label="Request Body"><code>{ "question": "Which one for the party?", "outfitIds": ["outfit_abc123", "outfit_def456"], "visibility": "public" }</code></td>
+                    <td data-label="Response Body"><code>{ "success": true, "pollId": "poll_pqr123", "shareableLink": "..." }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/poll/vote</code></td>
+                    <td data-label="Description">Records a user's vote on a specific poll option. Updates are pushed to clients in real-time.</td>
+                    <td data-label="Request Body"><code>{ "pollId": "poll_pqr123", "optionId": "option_a1b2", "emojiReaction": "🔥" }</code></td>
+                    <td data-label="Response Body"><code>{ "success": true, "message": "Vote recorded." }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>GET</code></td>
+                    <td data-label="Endpoint"><code>/api/poll/:pollId</code></td>
+                    <td data-label="Description">Retrieves the complete state of a poll. Primarily for non-real-time use cases like web previews.</td>
+                    <td data-label="Request Body"><code>None</code></td>
+                    <td data-label="Response Body"><code>{ "pollId": "...", "question": "...", "options": [...] }</code></td>
+                </tr>
+                 <tr>
+                    <td data-label="Method"><code>GET</code></td>
+                    <td data-label="Endpoint"><code>/api/outfit/:id/insights</code></td>
+                    <td data-label="Description">Retrieves the AI-generated style analysis for a specific outfit.</td>
+                    <td data-label="Request Body"><code>None</code></td>
+                    <td data-label="Response Body"><code>{ "outfitId": "...", "insights": [...] }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>GET</code></td>
+                    <td data-label="Endpoint"><code>/api/user/:id/dashboard</code></td>
+                    <td data-label="Description">Aggregates and returns all data needed for a user's personal analytics dashboard.</td>
+                    <td data-label="Request Body"><code>None</code></td>
+                    <td data-label="Response Body"><code>{ "userId": "...", "dashboard": { "recentPolls": [...], "topOutfits": [...] } }</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                'primaryColor': '#E3F2FD',
+                'primaryBorderColor': '#2196F3',
+                'secondaryColor': '#E8F5E9',
+                'secondaryBorderColor': '#4CAF50',
+                'tertiaryColor': '#FFF8E1',
+                'terti_border_color': '#FFC107',
+                'lineColor': '#607D8B',
+                'textColor': '#333',
+            },
+            flowchart: {
+                curve: 'step',
+            },
+            securityLevel: 'loose',
+            fontFamily: 'Inter, sans-serif'
+        });
+    </script>
+</body>
+</html>
