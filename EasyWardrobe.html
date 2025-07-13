@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyWardrobe™ Backend Architecture & API Specifications</title>
+    <!-- Load Mermaid.js from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <style>
+        /* Base styles for a clean, professional look */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #eef2f7; /* A soft, professional background */
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333; /* Default text color */
+            line-height: 1.6;
+        }
+
+        /* Main container for the diagram and text */
+        .architecture-document {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+            max-width: 1200px; /* Increased max width to accommodate tables */
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        /* Header styling */
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Darker, professional blue-grey */
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ecf0f1; /* Subtle separator */
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        /* Styling for the Mermaid diagram container */
+        .diagram-container {
+            margin: 30px 0;
+            background-color: #fcfdff; /* Very light background for the diagram area */
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #dce4eb; /* Light border */
+            overflow-x: auto; /* Ensure horizontal scrolling for wide diagrams */
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+        }
+
+        /* Mermaid specific styling (via theme and configuration) */
+        .mermaid {
+            width: 100%; /* Ensure diagram takes full width of its container */
+            height: auto; /* Adjust height automatically */
+        }
+
+        /* Table styling for API endpoints */
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden; /* Ensures rounded corners apply to content */
+        }
+
+        .api-table th, .api-table td {
+            border: 1px solid #e0e6ed;
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.9em;
+            word-break: break-word; /* Ensures long text breaks */
+        }
+
+        .api-table th {
+            background-color: #f5f8fb; /* Light header background */
+            color: #4a5568;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .api-table tr:nth-child(even) {
+            background-color: #f9fcff; /* Zebra striping for readability */
+        }
+
+        .api-table tr:hover {
+            background-color: #eef4fb; /* Hover effect */
+        }
+
+        .api-table td:first-child {
+            font-weight: 500; /* Make Method column stand out */
+            white-space: nowrap; /* Prevent method from wrapping */
+        }
+
+        /* Code block styling within tables */
+        .api-table code {
+            background-color: #e8f0f7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.85em;
+            color: #36454F; /* Darker code text */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .architecture-document {
+                padding: 20px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+            .api-table, .api-table th, .api-table td {
+                display: block; /* Stack table cells on small screens */
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .api-table th {
+                text-align: center;
+                padding: 10px;
+            }
+            .api-table td {
+                text-align: right;
+                padding-left: 50%; /* Space for label */
+                position: relative;
+            }
+            .api-table td::before {
+                content: attr(data-label); /* Use data-label for pseudo-element */
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 30px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="architecture-document">
+        <h1>EasyWardrobe™ Backend Architecture & API Specifications</h1>
+
+        <p>This document outlines the backend architecture and API specifications for the EasyWardrobe™ module of the ReStyleX application. EasyWardrobe™ focuses on effortlessly digitizing and maintaining a user's closet over time, leveraging AI and passive data ingestion methods to minimize user effort.</p>
+
+        <h2>1. System Architecture Diagram</h2>
+        <p>This diagram illustrates the core components and their interactions within the EasyWardrobe™ module, highlighting the technologies used and key data flows.</p>
+
+        <div class="diagram-container">
+            <div class="mermaid">
+                graph TD
+                    %% Define classes for styling
+                    classDef frontend fill:#BBDEFB,stroke:#2196F3,stroke-width:2px,color:#1A237E;
+                    classDef backend fill:#C8E6C9,stroke:#4CAF50,stroke-width:2px,color:#1B5E20;
+                    classDef data fill:#FFECB3,stroke:#FFC107,stroke-width:2px,color:#FF6F00;
+                    classDef external fill:#E1BEE7,stroke:#9C27B0,stroke-width:2px,color:#4A148C;
+
+                    subgraph User Interface
+                        A[Mobile/Web Client]:::frontend
+                    end
+
+                    subgraph Backend Services
+                        B(API Gateway)
+                        C(Auth Service)
+                        D(Wardrobe Service)
+                        E(Photo Scraping)
+                        F(Email Integration)
+                        G(AI Item Recognition)
+                        M(Receipt Extraction)
+                    end
+                    class B,C,D,E,F,G,M backend;
+
+                    subgraph Data & Storage
+                        H(Firestore DB)
+                        I(Cloud Storage)
+                    end
+                    class H,I data;
+
+                    subgraph External AI & Integrations
+                        J(Gemini API)
+                        K(Email Provider APIs)
+                        L(Retailer APIs)
+                    end
+                    class J,K,L external;
+
+                    %% Connections with simplified labels and 90-degree bends
+                    A -- "User Actions" --> B
+
+                    B -- "Auth" --> C
+                    B -- "Wardrobe Mgmt" --> D
+                    B -- "Photo Upload" --> E
+                    B -- "Email Link" --> F
+
+                    D -- "Item Data" --> H
+                    D -- "AI Styling/Enrichment" --> J
+
+                    E -- "Image Storage" --> I
+                    E -- "Item Recognition" --> G
+
+                    F -- "Read Emails" --> K
+                    F -- "Parse Receipts" --> M
+
+                    G -- "AI Processing" --> J
+                    G -- "Save Item Details" --> H
+
+                    M -- "AI Extraction" --> J
+                    M -- "Structured Data" --> D
+
+                    H -- "Data Access" --> A
+            </div>
+        </div>
+
+        <h2>2. Key Architectural Principles</h2>
+        <ul>
+            <li><strong>Frictionless Onboarding:</strong> Design focuses on minimizing explicit user effort for wardrobe digitization.</li>
+            <li><strong>AI-Driven Automation:</strong> Extensive use of Gemini API for automatic item recognition, tagging, contextual understanding, and content generation.</li>
+            <li><strong>Event-Driven Processing:</strong> Leveraging Cloud Functions triggered by events (e.g., new image upload, new email) for passive updates.</li>
+            <li><strong>Modular Services:</strong> Each core function (wardrobe management, photo scraping, email integration) is encapsulated in its own service.</li>
+            <li><strong>Scalability & Reliability:</strong> Built on Firebase/GCP serverless components for inherent scalability and high availability.</li>
+            <li><strong>Privacy & Security:</strong> Strict adherence to data privacy for email integration and secure handling of user data.</li>
+        </ul>
+
+        <h2>3. Data Model Overview</h2>
+        <p>The EasyWardrobe™ module extends the existing Firestore data model with new collections and enhanced structures to support digitized wardrobe items and their associated metadata.</p>
+
+        <h3>Conceptual Data Model (Extended)</h3>
+        <div class="diagram-container">
+            <div class="mermaid">
+                erDiagram
+                    USERS ||--o{ WARDROBE_ITEMS : "owns"
+                    WARDROBE_ITEMS ||--o{ OUTFITS : "part_of"
+                    USERS }|--|{ EMAIL_INTEGRATIONS : "configures"
+                    WARDROBE_ITEMS ||--|{ ITEM_TAGS : "has"
+                    WARDROBE_ITEMS ||--|{ ITEM_IMAGES : "includes"
+                    WARDROBE_ITEMS ||--|{ PURCHASE_HISTORY : "linked_to"
+                    WARDROBE_ITEMS ||--|{ AI_RECOGNITION_DATA : "processed_by"
+
+                    USERS {
+                        string uid PK
+                        string email
+                        string displayName
+                        string profilePicUrl
+                        string[] friends
+                        map settings
+                    }
+                    WARDROBE_ITEMS {
+                        string itemId PK
+                        string userId FK
+                        string name
+                        string description
+                        string category
+                        string subCategory
+                        string color
+                        string size
+                        string brand
+                        string material
+                        timestamp addedAt
+                        string source "chat, scrape, email, bulk"
+                        string[] imageUrls
+                        string[] tags "auto-generated"
+                        map aiRecognitionData "refers to AI_RECOGNITION_DATA"
+                        string aiGeneratedDescription "NEW: LLM-generated detailed description"
+                    }
+                    OUTFITS {
+                        string outfitId PK
+                        string userId FK
+                        string[] itemIds FK "references WARDROBE_ITEMS"
+                        string occasion
+                        string mood
+                        timestamp createdAt
+                        string[] tags
+                        map aiInsights
+                        string aiGeneratedStylingAdvice "NEW: LLM-generated advice"
+                    }
+                    EMAIL_INTEGRATIONS {
+                        string integrationId PK
+                        string userId FK
+                        string provider "gmail, outlook"
+                        string status "connected, disconnected"
+                        timestamp lastSynced
+                        string accessToken "encrypted/secure token"
+                    }
+                    ITEM_TAGS {
+                        string tagId PK
+                        string itemId FK
+                        string tagName
+                        string tagSource "AI, user"
+                    }
+                    ITEM_IMAGES {
+                        string imageId PK
+                        string itemId FK
+                        string imageUrl
+                        string type "full, cropped, product"
+                        timestamp uploadedAt
+                    }
+                    PURCHASE_HISTORY {
+                        string purchaseId PK
+                        string itemId FK
+                        string userId FK
+                        string retailer
+                        string orderId
+                        timestamp purchaseDate
+                        float price
+                        string currency
+                        string receiptUrl
+                        map extractedDetails "NEW: LLM-extracted granular details"
+                    }
+                    AI_RECOGNITION_DATA {
+                        string dataId PK
+                        string itemId FK
+                        string modelUsed
+                        float confidenceScore
+                        map detectedAttributes "e.g., { 'pattern': 'floral', 'neckline': 'v-neck' }"
+                        string rawLLMResponse
+                    }
+            </div>
+        </div>
+        <p><strong>Note:</strong> Some smaller, static attributes (like color, size, brand) might be embedded directly within <code>WARDROBE_ITEMS</code> for performance, while larger, dynamic, or frequently updated data (like <code>AI_RECOGNITION_DATA</code>, <code>ITEM_IMAGES</code>, <code>PURCHASE_HISTORY</code>) are kept in sub-collections or separate collections for better scalability and query flexibility.</p>
+
+
+        <h2>4. API Contracts / Specifications</h2>
+        <p>All API endpoints are exposed via a central API Gateway (e.g., Firebase HTTP Cloud Functions). Authentication is handled by verifying Firebase Auth ID tokens in the request headers.</p>
+
+        <h3>Wardrobe Management APIs</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Request Body (Example)</th>
+                    <th>Response Body (Example)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/add-from-chat</code></td>
+                    <td data-label="Description">Adds items to wardrobe based on chat context or uploaded outfit photos. Triggers AI recognition.</td>
+                    <td data-label="Request Body (Example)"><code>{ "imageUrl": "...", "chatContext": "What should I wear tonight?" }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "itemIds": ["item123", "item456"] }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/scrape-photos</code></td>
+                    <td data-label="Description">Uploads old photos (gallery, Instagram) for AI to extract and add items.</td>
+                    <td data-label="Request Body (Example)"><code>{ "imageUrls": ["...", "..."] }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "processingStatus": "queued" }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/link-email</code></td>
+                    <td data-label="Description">Initiates linking user's email account for receipt scanning. (OAuth flow).</td>
+                    <td data-label="Request Body (Example)"><code>{ "provider": "gmail", "authCode": "..." }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "status": "pending_sync" }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/process-receipt</code></td>
+                    <td data-label="Description">Manually triggers processing of a specific receipt URL or content. (Internal/Webhook).</td>
+                    <td data-label="Request Body (Example)"><code>{ "receiptText": "...", "source": "email" }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "itemIds": ["item789"] }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/bulk-upload</code></td>
+                    <td data-label="Description">Uploads multiple images for bulk item recognition and addition.</td>
+                    <td data-label="Request Body (Example)"><code>{ "imageUrls": ["...", "...", "..."] }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "processingStatus": "queued" }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>GET</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/items</code></td>
+                    <td data-label="Description">Retrieves all items in the user's digital wardrobe. Supports filtering/pagination.</td>
+                    <td data-label="Request Body (Example)"><code>None</code> (Query Params: <code>?category=tops&tag=casual</code>)</td>
+                    <td data-label="Response Body (Example)"><code>[ { "itemId": "...", "name": "...", "category": "...", "imageUrls": [...] }, ... ]</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>GET</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/items/{itemId}</code></td>
+                    <td data-label="Description">Retrieves details for a specific wardrobe item.</td>
+                    <td data-label="Request Body (Example)"><code>None</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "itemId": "...", "name": "...", "brand": "...", "aiRecognitionData": {...} }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>PUT</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/items/{itemId}</code></td>
+                    <td data-label="Description">Updates details for a specific wardrobe item (e.g., manual tags, description).</td>
+                    <td data-label="Request Body (Example)"><code>{ "tags": ["updated", "tag"], "description": "New description" }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "success": true, "itemId": "..." }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/styling-advice</code></td>
+                    <td data-label="Description">Gets ✨ AI-powered styling advice ✨ for an occasion/item using Gemini.</td>
+                    <td data-label="Request Body (Example)"><code>{ "occasion": "casual dinner", "itemIds": ["item123", "item456"], "chatContext": "I need an outfit for tonight." }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "advice": "Consider pairing your black jeans with the silk blouse...", "suggestedOutfit": ["item123", "item456"] }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/api/v1/wardrobe/items/{itemId}/enrich</code></td>
+                    <td data-label="Description">Enriches an item's description and tags using ✨ AI (Gemini) ✨ based on its image/attributes.</td>
+                    <td data-label="Request Body (Example)"><code>{ "attributes": { "category": "dress", "color": "red" } }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "aiGeneratedDescription": "A vibrant red midi dress...", "suggestedTags": ["evening", "bold"] }</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Internal AI & Integration APIs (Triggered by Services)</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Request Body (Example)</th>
+                    <th>Response Body (Example)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/internal/ai/recognize-item</code></td>
+                    <td data-label="Description">Internal endpoint for AI Item Recognition Service to process an image using Gemini API.</td>
+                    <td data-label="Request Body (Example)"><code>{ "imageUrl": "...", "context": "wardrobe_addition" }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "category": "dress", "color": "blue", "tags": ["casual", "summer"], "confidence": 0.9 }</code></td>
+                </tr>
+                <tr>
+                    <td data-label="Method"><code>POST</code></td>
+                    <td data-label="Endpoint"><code>/internal/email/parse-receipt</code></td>
+                    <td data-label="Description">Internal endpoint for Email Integration Service to parse receipt content using ✨ AI (Gemini) ✨ for detailed extraction.</td>
+                    <td data-label="Request Body (Example)"><code>{ "emailBody": "...", "sender": "Zara" }</code></td>
+                    <td data-label="Response Body (Example)"><code>{ "parsedItems": [{ "name": "Blazer", "price": 99.99, "material": "wool blend" }], "orderId": "..." }</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>EasyWardrobe™ aims to be a magical, effortless experience for users, continuously learning and reflecting their evolving style naturally, without the burden of manual data entry.</p>
+    </div>
+
+    <script>
+        // Initialize Mermaid.js with a professional theme
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base', // Using 'base' theme for more control over colors
+            themeVariables: {
+                'primaryColor': '#BBDEFB', // Frontend blue
+                'primaryBorderColor': '#2196F3',
+                'secondaryColor': '#C8E6C9', // Backend green
+                'secondaryBorderColor': '#4CAF50',
+                'tertiaryColor': '#FFECB3', // Data orange
+                'tertiaryBorderColor': '#FFC107',
+                'lineColor': '#607D8B', // Grey for lines
+                'textColor': '#333',
+                'nodeBorder': '#90A4AE',
+                'clusterBkg': '#ECEFF1',
+                'clusterBorder': '#B0BEC5'
+            },
+            flowchart: {
+                curve: 'linear', // Ensures straight lines
+                htmlLabels: true
+            },
+            er: {
+                diagramPadding: 20,
+                nodePadding: 10,
+                lineSpacing: 10,
+                minEntityWidth: 100,
+                minEntityHeight: 75,
+                fontSize: 12,
+                labelFontSize: 10,
+                groupingFontSize: 14,
+                stroke: '#333',
+                fill: '#fff',
+                textFill: '#333',
+                noteFill: '#ffffe0',
+                noteStroke: '#ccc',
+                edgeLabelBackground: '#fff',
+                arrowheadColor: '#333'
+            },
+            securityLevel: 'loose', // Allows for more flexible diagramming
+            fontFamily: 'Inter, sans-serif' // Ensure consistent font
+        });
+    </script>
+</body>
+</html>
